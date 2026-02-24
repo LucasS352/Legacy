@@ -1,0 +1,168 @@
+version: '3.9'
+
+# ============================================================
+# Legacy CRM — Docker Compose
+#
+# Services:
+#   - db         : MariaDB database
+#   - backend    : Node.js Express API
+#   - evolution  : Evolution API (WhatsApp / Baileys)
+#   - frontend   : React app served via Nginx
+#
+# Usage:
+#   cp .env.example .env && nano .env   # fill secrets
+#   docker-compose up -d
+# ============================================================
+
+services:
+
+  # ──────────────────────────────────────────────────────────
+  # Database — MariaDB
+  # ──────────────────────────────────────────────────────────
+  db:
+    image: mariadb:11.4
+    container_name: legacy_db
+    restart: unless-stopped
+    environment:
+      MARIADB_ROOT_PASSWORD: ${DB_ROOT_PASSWORD:-legacy_root_2026}
+      MARIADB_DATABASE: ${DB_NAME:-legacy}
+      MARIADB_USER: ${DB_USER:-legacy_user}
+      MARIADB_PASSWORD: ${DB_PASSWORD:-legacy_pass_2026}
+    volumes:
+      - db_data:/var/lib/mysql
+      - ./backend/database/schema.sql:/docker-entrypoint-initdb.d/01_schema.sql
+      - ./backend/database/seed.sql:/docker-entrypoint-initdb.d/02_seed.sql
+    ports:
+      - "${DB_PORT:-3307}:3306"
+    healthcheck:
+      test: [ "CMD", "healthcheck.sh", "--connect", "--innodb_initialized" ]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - legacy_network
+
+  # ──────────────────────────────────────────────────────────
+  # WhatsApp — Evolution API (Baileys, open source)
+  # Infra barata: sem custos de terceiros
+  # ──────────────────────────────────────────────────────────
+  evolution:
+    image: atendai/evolution-api:latest
+    container_name: legacy_evolution
+    restart: unless-stopped
+    ports:
+      - "8081:8080"
+    environment:
+      SERVER_TYPE: http
+      SERVER_PORT: 8080
+      SERVER_URL: http://evolution:8080
+      # Autenticação da Evolution API
+      AUTHENTICATION_TYPE: apikey
+      AUTHENTICATION_API_KEY: ${EVOLUTION_API_KEY:-legacy-evolution-api-key-2026}
+      AUTHENTICATION_EXPOSE_IN_FETCH_INSTANCES: "true"
+      # Banco de dados da Evolution (SQLite — sem custo extra)
+      DATABASE_ENABLED: "false"
+      # Log
+      LOG_LEVEL: ERROR
+      LOG_COLOR: "true"
+      # Webhook padrão → nosso backend
+      WEBHOOK_GLOBAL_URL: http://backend:3001/api/webhook/whatsapp
+      WEBHOOK_GLOBAL_ENABLED: "true"
+      WEBHOOK_GLOBAL_WEBHOOK_BY_EVENTS: "false"
+      # Eventos que queremos receber
+      WEBHOOK_EVENTS_MESSAGES_UPSERT: "true"
+      WEBHOOK_EVENTS_MESSAGES_UPDATE: "true"
+      WEBHOOK_EVENTS_CONNECTION_UPDATE: "true"
+      WEBHOOK_EVENTS_QRCODE_UPDATED: "true"
+      # Mídia — transferir base64 no webhook (para análise Gemini)
+      CONFIG_SESSION_PHONE_CLIENT: Legacy CRM
+      CONFIG_SESSION_PHONE_NAME: Chrome
+      # Instância padrão
+      INSTANCE_NAME: ${WHATSAPP_INSTANCE:-legacy-crm}
+    volumes:
+      - evolution_data:/evolution/instances
+      - evolution_store:/evolution/store
+    depends_on:
+      - backend
+    networks:
+      - legacy_network
+
+  # ──────────────────────────────────────────────────────────
+  # Backend — Node.js Express API
+  # ──────────────────────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+      target: production
+    container_name: legacy_backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3001
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost}
+      DB_HOST: db
+      DB_PORT: 3306
+      DB_NAME: ${DB_NAME:-legacy}
+      DB_USER: ${DB_USER:-legacy_user}
+      DB_PASSWORD: ${DB_PASSWORD:-legacy_pass_2026}
+      JWT_SECRET: ${JWT_SECRET:-change-this-in-production}
+      JWT_EXPIRES_IN: ${JWT_EXPIRES_IN:-7d}
+      GOOGLE_AI_API_KEY: ${GOOGLE_AI_API_KEY:-}
+      GOOGLE_AI_MODEL: ${GOOGLE_AI_MODEL:-gemini-1.5-flash}
+      WHATSAPP_API_URL: http://evolution:8080
+      WHATSAPP_API_KEY: ${EVOLUTION_API_KEY:-legacy-evolution-api-key-2026}
+      WHATSAPP_INSTANCE: ${WHATSAPP_INSTANCE:-legacy-crm}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET:-legacy-webhook-secret-2026}
+    ports:
+      - "3001:3001"
+    healthcheck:
+      test: [ "CMD", "wget", "-qO-", "http://localhost:3001/health" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 15s
+    networks:
+      - legacy_network
+
+  # ──────────────────────────────────────────────────────────
+  # Frontend — React + Nginx
+  # ──────────────────────────────────────────────────────────
+  frontend:
+    build:
+      context: ./legacy-bot-login
+      dockerfile: Dockerfile
+      target: production
+    container_name: legacy_frontend
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    volumes:
+      - ./legacy-bot-login/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    networks:
+      - legacy_network
+
+# ──────────────────────────────────────────────────────────
+# Volumes
+# ──────────────────────────────────────────────────────────
+volumes:
+  db_data:
+    name: legacy_db_data
+  evolution_data:
+    name: legacy_evolution_data
+  evolution_store:
+    name: legacy_evolution_store
+
+# ──────────────────────────────────────────────────────────
+# Networks
+# ──────────────────────────────────────────────────────────
+networks:
+  legacy_network:
+    name: legacy_network
+    driver: bridge
