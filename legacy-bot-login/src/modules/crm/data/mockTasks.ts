@@ -1,0 +1,14 @@
+import { Task } from "@/modules/crm/types/task";
+
+export const mockTasks: Task[] = [
+  { id: "t1", title: "Ligar para Maria Silva", description: "Confirmar documentos pendentes para o processo trabalhista", leadId: "1", leadName: "Maria Silva", funnel: "trabalhista", priority: "alta", status: "pendente", dueDate: "2026-02-14", createdAt: "2026-02-12", category: "ligacao" },
+  { id: "t2", title: "Solicitar documentação", description: "Pedir CTPS e holerites dos últimos 3 meses", leadId: "2", leadName: "João Santos", funnel: "trabalhista", priority: "alta", status: "pendente", dueDate: "2026-02-14", createdAt: "2026-02-12", category: "documento" },
+  { id: "t3", title: "Agendar reunião com Ana", description: "Discutir estratégia do caso", leadId: "3", leadName: "Ana Oliveira", funnel: "trabalhista", priority: "media", status: "em_andamento", dueDate: "2026-02-15", createdAt: "2026-02-13", category: "reuniao" },
+  { id: "t4", title: "Enviar contrato para assinatura", leadId: "5", leadName: "Fernanda Lima", funnel: "trabalhista", priority: "alta", status: "pendente", dueDate: "2026-02-14", createdAt: "2026-02-13", category: "documento" },
+  { id: "t5", title: "Verificar negativação Luciana", description: "Checar score e registros no SPC/Serasa", leadId: "7", leadName: "Luciana Pereira", funnel: "negativado", priority: "media", status: "pendente", dueDate: "2026-02-16", createdAt: "2026-02-13", category: "outro" },
+  { id: "t6", title: "Coletar boletim de ocorrência", description: "Solicitar BO registrado sobre o golpe PIX", leadId: "10", leadName: "Marcos Ferreira", funnel: "golpe", priority: "alta", status: "pendente", dueDate: "2026-02-15", createdAt: "2026-02-13", category: "documento" },
+  { id: "t7", title: "Prazo judicial - Carlos Souza", description: "Prazo para contestação vence em 3 dias", leadId: "4", leadName: "Carlos Souza", funnel: "trabalhista", priority: "alta", status: "em_andamento", dueDate: "2026-02-17", createdAt: "2026-02-10", category: "prazo" },
+  { id: "t8", title: "Follow-up WhatsApp Pedro", description: "Retornar contato sobre qualificação do caso", leadId: "8", leadName: "Pedro Almeida", funnel: "negativado", priority: "baixa", status: "pendente", dueDate: "2026-02-18", createdAt: "2026-02-13", category: "ligacao" },
+  { id: "t9", title: "Reunião com Tatiana Dias", description: "Apresentar opções jurídicas para o caso de golpe", leadId: "11", leadName: "Tatiana Dias", funnel: "golpe", priority: "media", status: "concluida", dueDate: "2026-02-13", createdAt: "2026-02-11", category: "reuniao" },
+  { id: "t10", title: "Enviar documentos Bruno", description: "Preparar e enviar petição inicial", leadId: "12", leadName: "Bruno Martins", funnel: "golpe", priority: "media", status: "concluida", dueDate: "2026-02-12", createdAt: "2026-02-10", category: "documento" },
+];

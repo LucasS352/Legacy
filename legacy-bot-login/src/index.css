@@ -1,0 +1,121 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+
+@layer base {
+  :root {
+    --background: 30 6% 15%;
+    --foreground: 43 20% 88%;
+
+    --card: 30 6% 18%;
+    --card-foreground: 43 20% 88%;
+
+    --popover: 30 6% 16%;
+    --popover-foreground: 43 20% 88%;
+
+    --primary: 43 72% 49%;
+    --primary-foreground: 30 10% 10%;
+
+    --secondary: 30 6% 22%;
+    --secondary-foreground: 43 20% 80%;
+
+    --muted: 30 5% 25%;
+    --muted-foreground: 30 8% 55%;
+
+    --accent: 43 72% 49%;
+    --accent-foreground: 30 10% 10%;
+
+    --destructive: 0 62% 50%;
+    --destructive-foreground: 0 0% 98%;
+
+    --border: 30 6% 25%;
+    --input: 30 6% 22%;
+    --ring: 43 72% 49%;
+
+    --radius: 0.75rem;
+
+    --gold: 43 72% 49%;
+    --gold-muted: 43 40% 35%;
+    --gold-glow: 43 80% 55%;
+    --surface: 30 6% 20%;
+    --surface-hover: 30 6% 24%;
+
+    --sidebar-background: 30 6% 12%;
+    --sidebar-foreground: 43 20% 88%;
+    --sidebar-primary: 43 72% 49%;
+    --sidebar-primary-foreground: 30 10% 10%;
+    --sidebar-accent: 30 6% 20%;
+    --sidebar-accent-foreground: 43 20% 88%;
+    --sidebar-border: 30 6% 22%;
+    --sidebar-ring: 43 72% 49%;
+
+    /* Keep legacy bot specific if needed, matched to new gold */
+    --login-gold: 43 72% 49%;
+    --login-dark: 30 6% 15%;
+    --login-dark-lighter: 30 6% 18%;
+    --login-gold-text: 43 72% 49%;
+
+    --success: 142 60% 45%;
+    --success-foreground: 0 0% 100%;
+  }
+
+  /* Remove .dark block as CRM seems to use root as dark/default */
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+
+  body {
+    @apply bg-background text-foreground;
+    font-family: 'Inter', sans-serif;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+@layer utilities {
+  .gold-gradient {
+    background: linear-gradient(135deg, hsl(43 72% 49%), hsl(43 80% 55%));
+  }
+
+  .gold-text {
+    background: linear-gradient(135deg, hsl(43 72% 49%), hsl(43 80% 60%));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+
+  .glass-card {
+    background: hsl(30 6% 18% / 0.8);
+    backdrop-filter: blur(12px);
+    border: 1px solid hsl(30 6% 28% / 0.5);
+  }
+
+  .kanban-column {
+    background: hsl(30 6% 16% / 0.6);
+    border: 1px solid hsl(30 6% 25% / 0.4);
+  }
+
+  .scrollbar-thin::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  .scrollbar-thin::-webkit-scrollbar-thumb {
+    background: hsl(30 6% 30%);
+    border-radius: 10px;
+  }
+}
